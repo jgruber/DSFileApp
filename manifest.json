@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "DS File",
+  "version": "1.0.0",
+  "description": "A Synology File Station client that recreates the DS File Android experience.",
+  "action": {
+    "default_title": "DS File"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "downloads"],
+  "host_permissions": ["<all_urls>"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

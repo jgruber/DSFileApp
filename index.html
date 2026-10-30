@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DS File</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Login screen -->
+  <section id="login" class="screen" hidden>
+    <div class="login-card">
+      <div class="login-brand">
+        <svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true">
+          <rect x="4" y="10" width="40" height="30" rx="4" fill="#2563eb"/>
+          <path d="M4 14a4 4 0 0 1 4-4h12l4 6h16a4 4 0 0 1 4 4v2H4z" fill="#1e40af"/>
+          <circle cx="34" cy="28" r="6" fill="#fff"/>
+          <path d="M31 28l2 2 4-4" stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>DS File</h1>
+      </div>
+      <form id="login-form" autocomplete="on">
+        <label>Address or QuickConnect ID
+          <input id="host" name="host" placeholder="192.168.1.10 or myNAS.synology.me" required autocomplete="url" />
+        </label>
+        <div class="row">
+          <label class="grow">Port
+            <input id="port" name="port" type="number" min="1" max="65535" placeholder="5001" />
+          </label>
+          <label class="check">
+            <input id="https" name="https" type="checkbox" checked />
+            <span>HTTPS</span>
+          </label>
+        </div>
+        <label>Account
+          <input id="user" name="user" required autocomplete="username" />
+        </label>
+        <label>Password
+          <input id="pass" name="pass" type="password" required autocomplete="current-password" />
+        </label>
+        <label id="otp-row" hidden>Verification code (2FA)
+          <input id="otp" name="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
+        </label>
+        <label class="check">
+          <input id="remember" name="remember" type="checkbox" checked />
+          <span>Remember me</span>
+        </label>
+        <button type="submit" class="btn btn-primary" id="login-btn">Sign in</button>
+        <p id="login-error" class="error" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Main app -->
+  <section id="app" class="screen" hidden>
+    <header class="appbar" id="appbar-main">
+      <button class="icon-btn" id="btn-menu" aria-label="Menu" title="Menu">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-up" aria-label="Up" title="Up" hidden>
+        <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 class="appbar-title" id="appbar-title">My files</h1>
+      <button class="icon-btn" id="btn-search" aria-label="Search" title="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-view" aria-label="View" title="Toggle grid/list">
+        <svg id="view-icon-list" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-more" aria-label="More" title="More">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
+      </button>
+    </header>
+
+    <!-- Selection action bar (shown in multi-select mode) -->
+    <header class="appbar appbar-select" id="appbar-select" hidden>
+      <button class="icon-btn" id="btn-sel-cancel" aria-label="Cancel selection">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <h1 class="appbar-title" id="sel-count">0 selected</h1>
+      <button class="icon-btn" id="btn-sel-download" title="Download"><svg viewBox="0 0 24 24"><path d="M12 4v12m0 0l-4-4m4 4l4-4M5 20h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="icon-btn" id="btn-sel-copy" title="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 4H6a2 2 0 0 0-2 2v10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+      <button class="icon-btn" id="btn-sel-move" title="Move"><svg viewBox="0 0 24 24"><path d="M4 7h8l2 2h6v9H4z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M10 13h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="icon-btn" id="btn-sel-delete" title="Delete"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
+      <button class="icon-btn" id="btn-sel-more" title="More"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button>
+    </header>
+
+    <!-- Search bar -->
+    <div class="searchbar" id="searchbar" hidden>
+      <button class="icon-btn" id="btn-search-close" aria-label="Close search">
+        <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <input id="search-input" placeholder="Search current folder…" />
+      <button class="icon-btn" id="btn-search-clear" aria-label="Clear">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Path"></nav>
+
+    <main id="file-area" class="file-area" tabindex="0">
+      <ul id="file-list" class="file-list" role="listbox" aria-multiselectable="true"></ul>
+      <div id="empty-state" class="empty-state" hidden>
+        <svg viewBox="0 0 48 48" width="64" height="64" aria-hidden="true">
+          <path d="M6 14a3 3 0 0 1 3-3h10l4 4h16a3 3 0 0 1 3 3v22a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z" fill="#cbd5e1"/>
+        </svg>
+        <p>Nothing here yet.</p>
+      </div>
+      <div id="busy" class="busy" hidden><div class="spinner"></div></div>
+    </main>
+
+    <button class="fab" id="fab" aria-label="Add">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+  </section>
+
+  <!-- Drawer -->
+  <aside class="drawer" id="drawer" hidden>
+    <div class="drawer-header">
+      <div class="avatar" id="drawer-avatar"></div>
+      <div>
+        <div class="drawer-user" id="drawer-user"></div>
+        <div class="drawer-host" id="drawer-host"></div>
+      </div>
+    </div>
+    <nav class="drawer-nav">
+      <button data-nav="files"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="currentColor"/></svg><span>My files</span></button>
+      <button data-nav="favorites"><svg viewBox="0 0 24 24"><path d="M12 3l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 18l-5.9 3 1.2-6.5L2.5 9.9 9.1 9z" fill="currentColor"/></svg><span>Favorites</span></button>
+      <button data-nav="recent"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Recent files</span></button>
+      <button data-nav="shared"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 20a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Shared with me</span></button>
+      <hr/>
+      <button data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19 12a7 7 0 0 0-.1-1.3l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2.2-1.3L14 3h-4l-.4 2.4a7 7 0 0 0-2.2 1.3L5.1 5.8l-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .9.1 1.3l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2.2 1.3L10 21h4l.4-2.4a7 7 0 0 0 2.2-1.3l2.3.9 2-3.4-2-1.5c0-.4.1-.9.1-1.3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg><span>Settings</span></button>
+      <button data-nav="logout"><svg viewBox="0 0 24 24"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 12H4m0 0l4-4m-4 4l4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Sign out</span></button>
+    </nav>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <!-- Floating menus & modals -->
+  <div class="menu" id="menu-more" hidden></div>
+  <div class="menu" id="menu-fab" hidden></div>
+  <div class="menu" id="menu-item" hidden></div>
+  <div class="menu" id="menu-sel-more" hidden></div>
+
+  <div class="dialog" id="dialog" hidden>
+    <div class="dialog-card" role="dialog" aria-modal="true">
+      <h2 id="dialog-title"></h2>
+      <div id="dialog-body"></div>
+      <div class="dialog-actions" id="dialog-actions"></div>
+    </div>
+  </div>
+
+  <!-- Preview overlay -->
+  <div class="preview" id="preview" hidden>
+    <header class="preview-bar">
+      <button class="icon-btn" id="preview-close" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <h2 id="preview-title"></h2>
+      <button class="icon-btn" id="preview-download" aria-label="Download">
+        <svg viewBox="0 0 24 24"><path d="M12 4v12m0 0l-4-4m4 4l4-4M5 20h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </header>
+    <div class="preview-body" id="preview-body"></div>
+  </div>
+
+  <!-- Toast / snackbar -->
+  <div class="toast" id="toast" hidden></div>
+
+  <!-- Upload progress -->
+  <div class="upload-tray" id="upload-tray" hidden>
+    <header><span id="upload-title">Uploading…</span><button id="upload-close" class="icon-btn" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></header>
+    <ul id="upload-list"></ul>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
